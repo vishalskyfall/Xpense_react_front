@@ -1,5 +1,4 @@
-import React, { useState, useContext } from "react";
-import { ExpenseTrackerContext } from "../../../context/context";
+import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
   TextField,
@@ -12,34 +11,53 @@ import {
   MenuItem,
 } from "@material-ui/core";
 
-// import useStyles from "./styles";
+// import { useNavigate } from "react-router-dom";
 import {
   incomeCategories,
   expenseCategories,
 } from "../../../constants/categories";
-import formatDate from "../../../utils/formatDate";
+// import formatDate from "../../../utils/formatDate";
+import ApiDataService from "../../../context/ApiDataService";
 
 const initialState = {
   amount: "",
   category: "",
   type: "Income",
-  date: formatDate(new Date()),
+  date: "",
 };
 
 const Form = () => {
+  // const redirect = useNavigate();
+
   // const classes = useStyles();
+  // import { ExpenseTrackerContext } from "../../../context/context";
+  // const { addTransaction } = useContext(ExpenseTrackerContext);
+  //addTransaction(transaction);
+  // console.log(formData);
+
   const [formData, setFormData] = useState(initialState);
-  const { addTransaction } = useContext(ExpenseTrackerContext);
-  const createTransaction = () => {
+  const createTransaction = (e) => {
+    e.preventDefault();
     const transaction = {
       ...formData,
       amount: Number(formData.amount),
+      categories: formData.category,
+      createdAt:formData.date,
       id: uuidv4(),
     };
-    addTransaction(transaction);
+    console.log(transaction);
+    ApiDataService.saveTransaction(transaction)
+      .then((res) => {
+        // console.log(res);
+        window.location.reload(false);
+        // redirect("/main")
+      })
+      .catch((err) => {
+        console.log(err);
+      });
     setFormData(initialState);
+    
   };
-  // console.log(formData);
 
   const selectedCategories =
     formData.type === "Income" ? incomeCategories : expenseCategories;
@@ -49,7 +67,7 @@ const Form = () => {
       <Grid item xs={12}>
         <Typography align="center" variant="subtitle2" gutterBottom>
           {/* gutterBottom is margin-bottom */}
-          ...
+         * * *
         </Typography>
       </Grid>
       <Grid item xs={6}>
@@ -99,7 +117,7 @@ const Form = () => {
           label="Date"
           value={formData.date}
           onChange={(e) =>
-            setFormData({ ...formData, date: formatDate(e.target.value) })
+            setFormData({ ...formData, date:e.target.value })
           }
           fullWidth
         />
